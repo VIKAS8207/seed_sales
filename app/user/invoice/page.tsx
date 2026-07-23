@@ -3,7 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { 
   FileText, CheckCircle, AlertCircle, Clock, 
-  Search, Filter, Eye, X, Download, Receipt
+  Search, Filter, Eye, X, Download, Receipt, Plus
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -16,6 +16,26 @@ const MOCK_INVOICES = [
 
 export default function UserInvoicePage() {
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
+  const [invoices, setInvoices] = useState(MOCK_INVOICES);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+  const handleCreateInvoice = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    
+    const newInvoice = {
+      id: `INV-26-0${Math.floor(100 + Math.random() * 900)}`,
+      date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+      seed: formData.get("seed") as string,
+      qty: formData.get("qty") + " kg",
+      amount: Number(formData.get("amount")),
+      status: "Unpaid",
+      dueDate: formData.get("dueDate") as string,
+    };
+
+    setInvoices([newInvoice, ...invoices]);
+    setIsAddModalOpen(false);
+  };
 
   return (
     <div className="p-8 pt-10 w-full max-w-[1400px] mx-auto">
@@ -26,6 +46,12 @@ export default function UserInvoicePage() {
           <h1 className="text-3xl font-bold text-brand-dark mb-1">My Invoices</h1>
           <p className="text-brand-gray text-sm">View your billing history and manage payments.</p>
         </div>
+        <button 
+          onClick={() => setIsAddModalOpen(true)}
+          className="px-5 py-2.5 bg-brand-primary text-brand-dark font-semibold rounded-xl flex items-center gap-2 hover:bg-[#8CD85F] transition shadow-sm"
+        >
+          <Plus className="w-5 h-5" /> Add Invoice
+        </button>
       </div>
 
       {/* 4-Column Stat Cards */}
@@ -63,7 +89,7 @@ export default function UserInvoicePage() {
               </tr>
             </thead>
             <tbody className="text-brand-gray">
-              {MOCK_INVOICES.map((inv, i) => (
+              {invoices.map((inv, i) => (
                 <tr key={i} className="hover:bg-brand-bg/10 transition border-b border-brand-bg/50 last:border-0">
                   <td className="p-4 pl-6">
                     <div className="font-semibold text-brand-dark">{inv.id}</div>
@@ -181,6 +207,75 @@ export default function UserInvoicePage() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Add New Invoice Modal */}
+      <AnimatePresence>
+        {isAddModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsAddModalOpen(false)} className="absolute inset-0 bg-brand-dark/40 backdrop-blur-sm" />
+            
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-2xl bg-brand-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+            >
+              <div className="p-6 border-b border-brand-bg flex justify-between items-center bg-brand-bg/20">
+                <h2 className="text-xl font-bold text-brand-dark">Create New Invoice</h2>
+                <button onClick={() => setIsAddModalOpen(false)} className="p-2 bg-brand-white border border-brand-bg rounded-full text-brand-gray hover:text-brand-dark hover:bg-brand-bg/50 transition">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <form onSubmit={handleCreateInvoice} className="flex flex-col max-h-[80vh]">
+                <div className="p-6 overflow-y-auto space-y-6">
+                  
+                  <div>
+                    <label className="block text-sm font-semibold text-brand-dark mb-1.5">Seed Variety</label>
+                    <select name="seed" required className="w-full px-4 py-3 bg-brand-white border border-brand-bg rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/50 text-brand-dark">
+                      <option value="" disabled selected>Select seed variety...</option>
+                      <option value="Wheat - Lok 1 (Certified)">Wheat - Lok 1 (Certified)</option>
+                      <option value="Soybean - JS 335 (Foundation)">Soybean - JS 335 (Foundation)</option>
+                      <option value="Paddy - IR 64 (Certified)">Paddy - IR 64 (Certified)</option>
+                      <option value="Maize - Ganga 5 (Breeder)">Maize - Ganga 5 (Breeder)</option>
+                    </select>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-brand-dark mb-1.5">Quantity (kg)</label>
+                      <input name="qty" type="number" required placeholder="e.g. 1000" className="w-full px-4 py-3 bg-brand-white border border-brand-bg rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/50 text-brand-dark" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-brand-dark mb-1.5">Total Amount (₹)</label>
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-gray font-semibold">₹</span>
+                        <input name="amount" type="number" required placeholder="50000" className="w-full pl-8 pr-4 py-3 bg-brand-white border border-brand-bg rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/50 text-brand-dark" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-brand-dark mb-1.5">Payment Due Date</label>
+                    <input name="dueDate" type="date" required className="w-full px-4 py-3 bg-brand-white border border-brand-bg rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/50 text-brand-dark" />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-semibold text-brand-dark mb-1.5">Additional Notes (Optional)</label>
+                    <textarea rows={2} placeholder="Add any specific billing notes..." className="w-full px-4 py-3 bg-brand-white border border-brand-bg rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/50 text-brand-dark resize-none"></textarea>
+                  </div>
+                </div>
+
+                <div className="p-6 border-t border-brand-bg bg-brand-bg/10 flex justify-end gap-3">
+                  <button type="button" onClick={() => setIsAddModalOpen(false)} className="px-6 py-2.5 border border-brand-bg rounded-xl text-brand-dark font-semibold hover:bg-brand-bg/50 transition">Cancel</button>
+                  <button type="submit" className="px-6 py-2.5 bg-brand-primary text-brand-dark font-bold rounded-xl hover:bg-[#8CD85F] transition shadow-sm flex items-center gap-2">
+                    Generate Invoice
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
     </div>
   );
 }
