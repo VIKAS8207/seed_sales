@@ -1,10 +1,17 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { Droplets, Mail, Lock } from "lucide-react";
+import { Droplets, Mail, Lock, Smartphone } from "lucide-react";
 
 export default function LoginPage() {
   const [role, setRole] = useState<'user' | 'admin'>('user');
+  const [loginMethod, setLoginMethod] = useState<'email' | 'phone'>('email');
+
+  // Determine destination route
+  let loginDestination = `/${role}/dashboard`;
+  if (role === 'user' && loginMethod === 'phone') {
+    loginDestination = '/mobile/dashboard';
+  }
 
   return (
     <div className="flex flex-col lg:flex-row h-screen w-full bg-brand-white overflow-hidden">
@@ -40,7 +47,7 @@ export default function LoginPage() {
           {/* Role Selection Toggle */}
           <div className="flex w-full bg-brand-bg/60 p-1 rounded-xl mb-8">
             <button
-              onClick={() => setRole('user')}
+              onClick={() => { setRole('user'); setLoginMethod('email'); }}
               className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all ${
                 role === 'user' 
                   ? 'bg-brand-white shadow-sm text-brand-dark' 
@@ -50,7 +57,7 @@ export default function LoginPage() {
               User
             </button>
             <button
-              onClick={() => setRole('admin')}
+              onClick={() => { setRole('admin'); setLoginMethod('email'); }}
               className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all ${
                 role === 'admin' 
                   ? 'bg-brand-white shadow-sm text-brand-dark' 
@@ -63,18 +70,49 @@ export default function LoginPage() {
 
           {/* Login Form */}
           <div className="w-full flex flex-col gap-5 mb-8">
+            
+            {/* Dynamic ID Input field */}
             <div>
-              <label className="block text-sm font-medium text-brand-dark mb-1.5 ml-1">Email</label>
+              <div className="flex justify-between items-center mb-1.5 ml-1">
+                <label className="block text-sm font-medium text-brand-dark">
+                  {loginMethod === 'email' ? 'Email' : 'Phone Number'}
+                </label>
+                
+                {/* Small toggle for User role to switch between Email/Phone */}
+                {role === 'user' && (
+                  <div className="flex bg-brand-bg/60 p-0.5 rounded-md">
+                    <button 
+                      onClick={() => setLoginMethod('email')}
+                      className={`px-2 py-1 text-[10px] font-bold rounded ${loginMethod === 'email' ? 'bg-white shadow-sm text-brand-dark' : 'text-brand-gray'}`}
+                    >
+                      Email
+                    </button>
+                    <button 
+                      onClick={() => setLoginMethod('phone')}
+                      className={`px-2 py-1 text-[10px] font-bold rounded ${loginMethod === 'phone' ? 'bg-white shadow-sm text-brand-dark' : 'text-brand-gray'}`}
+                    >
+                      Phone
+                    </button>
+                  </div>
+                )}
+              </div>
+              
               <div className="relative">
-                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-gray/60" />
+                {loginMethod === 'email' ? (
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-gray/60" />
+                ) : (
+                  <Smartphone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-gray/60" />
+                )}
+                
                 <input 
-                  type="email" 
-                  placeholder="name@company.com" 
+                  type={loginMethod === 'email' ? 'email' : 'tel'} 
+                  placeholder={loginMethod === 'email' ? "name@company.com" : "+91 00000 00000"} 
                   className="w-full pl-10 pr-4 py-3 bg-brand-white border border-brand-bg rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/50 text-brand-dark placeholder:text-brand-gray/40 transition-shadow"
                 />
               </div>
             </div>
 
+            {/* Password Input */}
             <div>
               <label className="block text-sm font-medium text-brand-dark mb-1.5 ml-1">Password</label>
               <div className="relative">
@@ -98,7 +136,7 @@ export default function LoginPage() {
             </div>
 
             <Link 
-              href={`/${role}/dashboard`} 
+              href={loginDestination} 
               className="w-full text-center py-3.5 mt-2 bg-gradient-to-r from-brand-dark to-[#5ab84b] text-white rounded-xl font-medium shadow-md hover:opacity-90 transition-opacity"
             >
               Log in
