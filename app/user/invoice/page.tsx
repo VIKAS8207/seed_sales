@@ -19,22 +19,31 @@ export default function UserInvoicePage() {
   const [invoices, setInvoices] = useState(MOCK_INVOICES);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
+  // Added state to manage multiple seed items
+  const [invoiceItems, setInvoiceItems] = useState([{ seed: "", qty: "", amount: "" }]);
+
   const handleCreateInvoice = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     
+    // Combine all selected items into single strings/totals for the table
+    const seedNames = invoiceItems.map(item => item.seed).join(" + ");
+    const totalQty = invoiceItems.map(item => item.qty + " kg").join(" + ");
+    const totalAmount = invoiceItems.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+
     const newInvoice = {
       id: `INV-26-0${Math.floor(100 + Math.random() * 900)}`,
       date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
-      seed: formData.get("seed") as string,
-      qty: formData.get("qty") + " kg",
-      amount: Number(formData.get("amount")),
+      seed: seedNames,
+      qty: totalQty,
+      amount: totalAmount,
       status: "Unpaid",
       dueDate: formData.get("dueDate") as string,
     };
 
     setInvoices([newInvoice, ...invoices]);
     setIsAddModalOpen(false);
+    setInvoiceItems([{ seed: "", qty: "", amount: "" }]); // Reset form after submit
   };
 
   return (
@@ -228,32 +237,97 @@ export default function UserInvoicePage() {
               <form onSubmit={handleCreateInvoice} className="flex flex-col max-h-[80vh]">
                 <div className="p-6 overflow-y-auto space-y-6">
                   
-                  <div>
-                    <label className="block text-sm font-semibold text-brand-dark mb-1.5">Seed Variety</label>
-                    <select name="seed" required className="w-full px-4 py-3 bg-brand-white border border-brand-bg rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/50 text-brand-dark">
-                      <option value="" disabled selected>Select seed variety...</option>
-                      <option value="Wheat - Lok 1 (Certified)">Wheat - Lok 1 (Certified)</option>
-                      <option value="Soybean - JS 335 (Foundation)">Soybean - JS 335 (Foundation)</option>
-                      <option value="Paddy - IR 64 (Certified)">Paddy - IR 64 (Certified)</option>
-                      <option value="Maize - Ganga 5 (Breeder)">Maize - Ganga 5 (Breeder)</option>
-                    </select>
-                  </div>
+                  {/* Dynamic Multiple Items Mapping */}
+                  <div className="space-y-4">
+                    {invoiceItems.map((item, index) => (
+                      <div key={index} className="p-5 border border-brand-bg rounded-xl bg-brand-bg/5 space-y-4 relative group">
+                        
+                        <div className="flex justify-between items-center">
+                          <h4 className="text-sm font-bold text-brand-dark">Seed Item {index + 1}</h4>
+                          {invoiceItems.length > 1 && (
+                            <button 
+                              type="button" 
+                              onClick={() => {
+                                const newItems = [...invoiceItems];
+                                newItems.splice(index, 1);
+                                setInvoiceItems(newItems);
+                              }} 
+                              className="text-red-500 hover:text-red-700 text-xs font-semibold px-2 py-1 rounded bg-red-50 hover:bg-red-100 transition"
+                            >
+                              Remove Item
+                            </button>
+                          )}
+                        </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-brand-dark mb-1.5">Quantity (kg)</label>
-                      <input name="qty" type="number" required placeholder="e.g. 1000" className="w-full px-4 py-3 bg-brand-white border border-brand-bg rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/50 text-brand-dark" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-brand-dark mb-1.5">Total Amount (₹)</label>
-                      <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-gray font-semibold">₹</span>
-                        <input name="amount" type="number" required placeholder="50000" className="w-full pl-8 pr-4 py-3 bg-brand-white border border-brand-bg rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/50 text-brand-dark" />
+                        <div>
+                          <label className="block text-sm font-semibold text-brand-dark mb-1.5">Seed Variety</label>
+                          <select 
+                            required 
+                            value={item.seed}
+                            onChange={(e) => {
+                              const newItems = [...invoiceItems];
+                              newItems[index].seed = e.target.value;
+                              setInvoiceItems(newItems);
+                            }}
+                            className="w-full px-4 py-3 bg-brand-white border border-brand-bg rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/50 text-brand-dark"
+                          >
+                            <option value="" disabled>Select seed variety...</option>
+                            <option value="Wheat - Lok 1 (Certified)">Wheat - Lok 1 (Certified)</option>
+                            <option value="Soybean - JS 335 (Foundation)">Soybean - JS 335 (Foundation)</option>
+                            <option value="Paddy - IR 64 (Certified)">Paddy - IR 64 (Certified)</option>
+                            <option value="Maize - Ganga 5 (Breeder)">Maize - Ganga 5 (Breeder)</option>
+                          </select>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-semibold text-brand-dark mb-1.5">Quantity (kg)</label>
+                            <input 
+                              type="number" 
+                              required 
+                              placeholder="e.g. 1000" 
+                              value={item.qty}
+                              onChange={(e) => {
+                                const newItems = [...invoiceItems];
+                                newItems[index].qty = e.target.value;
+                                setInvoiceItems(newItems);
+                              }}
+                              className="w-full px-4 py-3 bg-brand-white border border-brand-bg rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/50 text-brand-dark" 
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-semibold text-brand-dark mb-1.5">Total Amount (₹)</label>
+                            <div className="relative">
+                              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-gray font-semibold">₹</span>
+                              <input 
+                                type="number" 
+                                required 
+                                placeholder="50000" 
+                                value={item.amount}
+                                onChange={(e) => {
+                                  const newItems = [...invoiceItems];
+                                  newItems[index].amount = e.target.value;
+                                  setInvoiceItems(newItems);
+                                }}
+                                className="w-full pl-8 pr-4 py-3 bg-brand-white border border-brand-bg rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/50 text-brand-dark" 
+                              />
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                    </div>
+                    ))}
                   </div>
 
-                  <div>
+                  {/* Add New Seed Button */}
+                  <button 
+                    type="button" 
+                    onClick={() => setInvoiceItems([...invoiceItems, { seed: "", qty: "", amount: "" }])}
+                    className="w-full py-3.5 border-2 border-dashed border-brand-primary/50 text-brand-primary font-bold rounded-xl hover:bg-brand-primary/10 transition flex items-center justify-center gap-2"
+                  >
+                    <Plus className="w-4 h-4" /> Add Another Seed Variety
+                  </button>
+
+                  <div className="border-t border-brand-bg pt-6">
                     <label className="block text-sm font-semibold text-brand-dark mb-1.5">Payment Due Date</label>
                     <input name="dueDate" type="date" required className="w-full px-4 py-3 bg-brand-white border border-brand-bg rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primary/50 text-brand-dark" />
                   </div>
