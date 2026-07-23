@@ -34,7 +34,7 @@ export default function AdminSidebar() {
         <div className="p-1.5 bg-brand-primary/10 rounded-lg">
           <Sprout className="w-8 h-8 text-brand-primary" />
         </div>
-        <span className="text-2xl font-bold tracking-wide">Maha Beej</span>
+        <span className="text-2xl font-bold tracking-wide">Seed Sales</span>
       </div>
 
       <span className="text-xs text-white/50 uppercase tracking-wider mb-4 font-semibold">Admin Menu</span>
@@ -60,9 +60,7 @@ export default function AdminSidebar() {
           <UserSquare2 className="w-5 h-5" /> Customer
         </Link>
 
-        <Link href="/admin/treasury" className={isActive("/admin/treasury") ? activeClass : inactiveClass}>
-          <Banknote className="w-5 h-5" /> Treasury
-        </Link>
+       
 
         <Link href="/admin/supplier" className={isActive("/admin/supplier") ? activeClass : inactiveClass}>
           <Truck className="w-5 h-5" /> Supplier
