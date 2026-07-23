@@ -31,7 +31,7 @@ export default function UserSidebar() {
         <div className="p-1.5 bg-brand-primary/10 rounded-lg">
           <Sprout className="w-8 h-8 text-brand-primary" />
         </div>
-        <span className="text-2xl font-bold tracking-wide">Maha Beej</span>
+        <span className="text-2xl font-bold tracking-wide">Seed Sales</span>
       </div>
 
       <span className="text-xs text-white/50 uppercase tracking-wider mb-4 font-semibold">User Menu</span>

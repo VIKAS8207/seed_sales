@@ -122,7 +122,7 @@ export default function UserInvoicePage() {
                 <div className="bg-white p-6 rounded-xl border border-brand-bg shadow-sm">
                   <div className="flex justify-between items-start border-b border-brand-bg border-dashed pb-4 mb-4">
                     <div>
-                      <div className="text-2xl font-bold text-brand-dark mb-1">Maha Beej</div>
+                      <div className="text-2xl font-bold text-brand-dark mb-1">Seed Sales</div>
                       <div className="text-xs text-brand-gray">State Seed Corporation</div>
                     </div>
                     <div className="text-right">
