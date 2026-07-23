@@ -24,7 +24,7 @@ export default function Topbar() {
           <img src="https://ui-avatars.com/api/?name=Admin+User&background=9EE970&color=254F4C" alt="Profile" className="w-9 h-9 rounded-full" />
           <div className="flex flex-col">
             <span className="text-sm font-semibold text-brand-dark leading-none">Admin User</span>
-            <span className="text-[10px] text-brand-gray mt-1">Maha Beej HQ</span>
+            <span className="text-[10px] text-brand-gray mt-1">seed sales HQ</span>
           </div>
         </div>
       </div>
