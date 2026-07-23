@@ -3,7 +3,7 @@ import { useState } from "react";
 import { 
   Search, Filter, Plus, ShieldCheck, Key, Lock, 
   Mail, Smartphone, ShieldAlert, X, MoreVertical, 
-  RefreshCw, Send
+  RefreshCw, Send, Unlock
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
