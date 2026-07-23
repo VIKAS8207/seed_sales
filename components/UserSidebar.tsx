@@ -49,10 +49,6 @@ export default function UserSidebar() {
           <BookOpen className="w-5 h-5" /> Ledger
         </Link>
 
-        <Link href="/user/payment" className={isActive("/user/payment") ? activeClass : inactiveClass}>
-          <CreditCard className="w-5 h-5" /> Online Payment & Treasury
-        </Link>
-
         {/* Reports Dropdown */}
         <div>
           <button 
