@@ -1,10 +1,15 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, CreditCard, PieChart, Landmark, UploadCloud, ShieldCheck } from "lucide-react";
+import { 
+  ChevronLeft, CreditCard, PieChart, Landmark, 
+  UploadCloud, ShieldCheck, CheckCircle2 
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function PaymentPage() {
   const [paymentMode, setPaymentMode] = useState<'full' | 'partial' | 'treasury'>('full');
+  const [showSuccess, setShowSuccess] = useState(false);
   
   // Mock Invoice Total
   const TOTAL_AMOUNT = 90000;
@@ -29,8 +34,13 @@ export default function PaymentPage() {
     }
   };
 
+  const handlePaymentSubmit = () => {
+    // In a real app, you would process the payment API here
+    setShowSuccess(true);
+  };
+
   return (
-    <div className="p-8 pt-10 w-full max-w-[1000px] mx-auto">
+    <div className="p-8 pt-10 w-full max-w-[1000px] mx-auto relative">
       
       {/* Back Button */}
       <Link href="/user/invoice" className="inline-flex items-center gap-2 text-brand-gray hover:text-brand-dark font-medium mb-8 transition">
@@ -164,14 +174,15 @@ export default function PaymentPage() {
                 </select>
               </div>
 
-              {/* Document Upload */}
+              {/* Document Upload (Fixed with Label/Input) */}
               <div>
                 <label className="block text-sm font-semibold text-brand-dark mb-2">Upload Treasury Authorization Document</label>
-                <div className="w-full h-32 border-2 border-dashed border-brand-bg bg-brand-white rounded-xl flex flex-col items-center justify-center text-brand-gray hover:bg-brand-bg/50 transition cursor-pointer">
+                <label className="w-full h-32 border-2 border-dashed border-brand-bg bg-brand-white rounded-xl flex flex-col items-center justify-center text-brand-gray hover:bg-brand-bg/50 transition cursor-pointer">
+                  <input type="file" accept=".pdf" className="hidden" />
                   <UploadCloud className="w-8 h-8 text-brand-gray mb-2" />
                   <span className="text-sm font-medium text-brand-dark">Click to upload official PDF</span>
                   <span className="text-xs mt-1">Required for verification</span>
-                </div>
+                </label>
               </div>
 
             </div>
@@ -181,12 +192,53 @@ export default function PaymentPage() {
 
         {/* Submit Button */}
         <div className="flex justify-end">
-          <button className="px-8 py-4 bg-brand-primary text-brand-dark font-bold text-lg rounded-xl hover:bg-[#8CD85F] transition shadow-md">
+          <button 
+            onClick={handlePaymentSubmit}
+            className="px-8 py-4 bg-brand-primary text-brand-dark font-bold text-lg rounded-xl hover:bg-[#8CD85F] transition shadow-md"
+          >
             {paymentMode === 'treasury' ? 'Submit for Treasury Approval' : 'Proceed to Secure Payment'}
           </button>
         </div>
 
       </div>
+
+      {/* --- SUCCESS POPUP MODAL --- */}
+      <AnimatePresence>
+        {showSuccess && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center px-4">
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }} 
+              className="absolute inset-0 bg-brand-dark/40 backdrop-blur-sm" 
+            />
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }} 
+              animate={{ scale: 1, opacity: 1 }} 
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-brand-white rounded-3xl p-10 flex flex-col items-center justify-center max-w-sm w-full relative z-10 shadow-2xl"
+            >
+              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6">
+                <CheckCircle2 className="w-10 h-10 text-green-600" />
+              </div>
+              <h2 className="text-2xl font-bold text-brand-dark mb-2 text-center">Payment Successful!</h2>
+              <p className="text-center text-brand-gray mb-8">
+                {paymentMode === 'treasury' 
+                  ? 'Your claim has been submitted for verification.' 
+                  : 'Your transaction has been securely processed.'}
+              </p>
+              
+              <Link 
+                href="/user/invoice" 
+                className="w-full py-3 bg-brand-bg text-brand-dark font-bold text-center rounded-xl hover:bg-brand-bg/80 transition"
+              >
+                Return to Invoices
+              </Link>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
     </div>
   );
 }

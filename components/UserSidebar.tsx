@@ -10,7 +10,7 @@ import {
   Sprout,
   LogOut,
   FileBarChart,
-  ChevronDown
+  ChevronDown, Landmark
 } from "lucide-react";
 
 export default function UserSidebar() {
@@ -47,6 +47,10 @@ export default function UserSidebar() {
 
         <Link href="/user/ledger" className={isActive("/user/ledger") ? activeClass : inactiveClass}>
           <BookOpen className="w-5 h-5" /> Ledger
+        </Link>
+
+        <Link href="/user/treasury" className={isActive("/user/treasury") ? activeClass : inactiveClass}>
+          <Landmark className="w-5 h-5" /> Treasury
         </Link>
 
         {/* Reports Dropdown */}

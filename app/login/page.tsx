@@ -4,14 +4,14 @@ import Link from "next/link";
 import { Droplets, Mail, Lock, Smartphone } from "lucide-react";
 
 export default function LoginPage() {
-  const [role, setRole] = useState<'user' | 'admin'>('user');
+  // New 3-way role state
+  const [role, setRole] = useState<'admin' | 'employee' | 'user'>('employee');
   const [loginMethod, setLoginMethod] = useState<'email' | 'phone'>('email');
 
-  // Determine destination route
-  let loginDestination = `/${role}/dashboard`;
-  if (role === 'user' && loginMethod === 'phone') {
-    loginDestination = '/mobile/dashboard';
-  }
+  // Determine destination route strictly based on role
+  let loginDestination = '/user/dashboard'; // Default for Employee
+  if (role === 'admin') loginDestination = '/admin/dashboard';
+  if (role === 'user') loginDestination = '/mobile/dashboard';
 
   return (
     <div className="flex flex-col lg:flex-row h-screen w-full bg-brand-white overflow-hidden">
@@ -44,20 +44,10 @@ export default function LoginPage() {
           
           <h2 className="text-3xl font-bold text-brand-dark mb-8">Welcome back</h2>
 
-          {/* Role Selection Toggle */}
+          {/* 3-Way Role Selection Toggle */}
           <div className="flex w-full bg-brand-bg/60 p-1 rounded-xl mb-8">
             <button
-              onClick={() => { setRole('user'); setLoginMethod('email'); }}
-              className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all ${
-                role === 'user' 
-                  ? 'bg-brand-white shadow-sm text-brand-dark' 
-                  : 'text-brand-gray hover:text-brand-dark'
-              }`}
-            >
-              User
-            </button>
-            <button
-              onClick={() => { setRole('admin'); setLoginMethod('email'); }}
+              onClick={() => setRole('admin')}
               className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all ${
                 role === 'admin' 
                   ? 'bg-brand-white shadow-sm text-brand-dark' 
@@ -65,6 +55,26 @@ export default function LoginPage() {
               }`}
             >
               Admin
+            </button>
+            <button
+              onClick={() => setRole('employee')}
+              className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all ${
+                role === 'employee' 
+                  ? 'bg-brand-white shadow-sm text-brand-dark' 
+                  : 'text-brand-gray hover:text-brand-dark'
+              }`}
+            >
+              Employee
+            </button>
+            <button
+              onClick={() => setRole('user')}
+              className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all ${
+                role === 'user' 
+                  ? 'bg-brand-white shadow-sm text-brand-dark' 
+                  : 'text-brand-gray hover:text-brand-dark'
+              }`}
+            >
+              User
             </button>
           </div>
 
@@ -77,24 +87,6 @@ export default function LoginPage() {
                 <label className="block text-sm font-medium text-brand-dark">
                   {loginMethod === 'email' ? 'Email' : 'Phone Number'}
                 </label>
-                
-                {/* Small toggle for User role to switch between Email/Phone */}
-                {role === 'user' && (
-                  <div className="flex bg-brand-bg/60 p-0.5 rounded-md">
-                    <button 
-                      onClick={() => setLoginMethod('email')}
-                      className={`px-2 py-1 text-[10px] font-bold rounded ${loginMethod === 'email' ? 'bg-white shadow-sm text-brand-dark' : 'text-brand-gray'}`}
-                    >
-                      Email
-                    </button>
-                    <button 
-                      onClick={() => setLoginMethod('phone')}
-                      className={`px-2 py-1 text-[10px] font-bold rounded ${loginMethod === 'phone' ? 'bg-white shadow-sm text-brand-dark' : 'text-brand-gray'}`}
-                    >
-                      Phone
-                    </button>
-                  </div>
-                )}
               </div>
               
               <div className="relative">
@@ -134,6 +126,15 @@ export default function LoginPage() {
                 Forgot password?
               </Link>
             </div>
+
+            {/* Email/Phone Toggle Button */}
+            <button 
+              type="button"
+              onClick={() => setLoginMethod(prev => prev === 'email' ? 'phone' : 'email')}
+              className="text-sm text-brand-dark font-bold hover:text-brand-primary transition-colors mt-2"
+            >
+              {loginMethod === 'email' ? 'Login using mobile number instead' : 'Login using email address instead'}
+            </button>
 
             <Link 
               href={loginDestination} 
